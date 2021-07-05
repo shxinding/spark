@@ -26,7 +26,7 @@ object AggregateEstimation {
 
   /**
    * Estimate the number of output rows based on column stats of group-by columns, and propagate
-   * column stats for aggregate expressions.
+   * column stats for aggregate expressions. 根据基于列的group-by统计数据估算输出行数，并传递聚合表达式的统计信息
    */
   def estimate(agg: Aggregate): Option[Statistics] = {
     val childStats = agg.child.stats

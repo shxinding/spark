@@ -24,7 +24,7 @@ import org.apache.spark.sql.catalyst.trees.TreeNode
 /**
  * Given a [[LogicalPlan]], returns a list of `PhysicalPlan`s that can
  * be used for execution. If this strategy does not apply to the given logical operation then an
- * empty list should be returned.
+ * empty list should be returned. 给的逻辑计划，返回用于执行的物理计划。如果这个策略没有在对应逻辑算子执行，则返回空列表
  */
 abstract class GenericStrategy[PhysicalPlan <: TreeNode[PhysicalPlan]] extends Logging {
 

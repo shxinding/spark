@@ -20,7 +20,7 @@ package org.apache.spark.sql.catalyst.plans.logical.statsEstimation
 import org.apache.spark.sql.catalyst.plans.logical._
 
 /**
- * A [[LogicalPlanVisitor]] that computes the statistics for the cost-based optimizer.
+ * A [[LogicalPlanVisitor]] that computes the statistics for the cost-based optimizer. 为基于代价的优化计算统计信息
  */
 object BasicStatsPlanVisitor extends LogicalPlanVisitor[Statistics] {
 

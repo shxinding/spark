@@ -360,10 +360,10 @@ trait JoinSelectionHelper {
   }
 
   /**
-   * Matches a plan whose single partition should be small enough to build a hash table.
+   * Matches a plan whose single partition should be small enough to build a hash table. 匹配一个plan,其单个分区应当足够下，以构建hash table
    *
    * Note: this assume that the number of partition is fixed, requires additional work if it's
-   * dynamic.
+   * dynamic. 假设分区数固定，如果分区数是动态的，则需要其它工作
    */
   private def canBuildLocalHashMapBySize(plan: LogicalPlan, conf: SQLConf): Boolean = {
     plan.stats.sizeInBytes < conf.autoBroadcastJoinThreshold * conf.numShufflePartitions

@@ -25,9 +25,9 @@ import org.apache.spark.sql.catalyst.plans.logical._
 trait LogicalPlanStats { self: LogicalPlan =>
 
   /**
-   * Returns the estimated statistics for the current logical plan node. Under the hood, this
-   * method caches the return value, which is computed based on the configuration passed in the
-   * first time. If the configuration changes, the cache can be invalidated by calling
+   * Returns the estimated statistics for the current logical plan node. Under the hood, this    为当前逻辑计划阶段返回估计统计信息
+   * method caches the return value, which is computed based on the configuration passed in the  这个方法在后台缓存返回值；缓存基于首次传入的配置计算
+   * first time. If the configuration changes, the cache can be invalidated by calling   如果配置发生变化，缓存将会被调用invalidateStatsCache()作废
    * [[invalidateStatsCache()]].
    */
   def stats: Statistics = statsCache.getOrElse {

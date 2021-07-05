@@ -26,28 +26,28 @@ import org.apache.spark.sql.catalyst.plans._
 import org.apache.spark.sql.catalyst.plans.logical._
 
 /**
- * Encapsulates star-schema detection logic.
+ * Encapsulates star-schema detection logic.  封装星型模式检测逻辑
  */
 object StarSchemaDetection extends PredicateHelper with SQLConfHelper {
 
   /**
-   * Star schema consists of one or more fact tables referencing a number of dimension
-   * tables. In general, star-schema joins are detected using the following conditions:
-   *  1. Informational RI constraints (reliable detection)
+   * Star schema consists of one or more fact tables referencing a number of dimension   Star模型有一个或多个引用多个维度的事实表组成。
+   * tables. In general, star-schema joins are detected using the following conditions:   通常由如下条件检测一个星型模式join
+   *  1. Informational RI constraints (reliable detection)  信息引用完整性约束：  维度包含一个到事实表的主键，事实表包含引用多个维度表的外键
    * + Dimension contains a primary key that is being joined to the fact table.
    * + Fact table contains foreign keys referencing multiple dimension tables.
-   * 2. Cardinality based heuristics
+   * 2. Cardinality based heuristics  基于基数的启发式算法： 通常有最高基数的表就是事实表。 join次数最多的表为事实表
    * + Usually, the table with the highest cardinality is the fact table.
    * + Table being joined with the most number of tables is the fact table.
    *
-   * To detect star joins, the algorithm uses a combination of the above two conditions.
-   * The fact table is chosen based on the cardinality heuristics, and the dimension
-   * tables are chosen based on the RI constraints. A star join will consist of the largest
-   * fact table joined with the dimension tables on their primary keys. To detect that a
+   * To detect star joins, the algorithm uses a combination of the above two conditions.  为了检测星型join,这个算法结合了如上两个条件
+   * The fact table is chosen based on the cardinality heuristics, and the dimension    事实表由基于基数的启发式方式选定，维度表基于RI约束选定。
+   * tables are chosen based on the RI constraints. A star join will consist of the largest  一个星型join将有最大的事实表与维度表主键上的join构成
+   * fact table joined with the dimension tables on their primary keys. To detect that a   为了检测主键column，算法使用了表和列的统计信息
    * column is a primary key, the algorithm uses table and column statistics.
    *
-   * The algorithm currently returns only the star join with the largest fact table.
-   * Choosing the largest fact table on the driving arm to avoid large inners is in
+   * The algorithm currently returns only the star join with the largest fact table.   算发当前只返回具有最大事实表的星型join
+   * Choosing the largest fact table on the driving arm to avoid large inners is in   选择最大事实表
    * general a good heuristic. This restriction will be lifted to observe multiple
    * star joins.
    *
@@ -93,7 +93,7 @@ object StarSchemaDetection extends PredicateHelper with SQLConfHelper {
         emptyStarJoinPlan
       } else {
         // Find the fact table using cardinality based heuristics i.e.
-        // the table with the largest number of rows.
+        // the table with the largest number of rows. 使用基于基数的启发方式查找实际表，即行数最大的表
         val sortedFactTables = input.map { plan =>
           TableAccessCardinality(plan, getTableAccessCardinality(plan))
         }.collect { case t @ TableAccessCardinality(_, Some(_)) =>
@@ -291,22 +291,22 @@ object StarSchemaDetection extends PredicateHelper with SQLConfHelper {
   private case class TableAccessCardinality(plan: LogicalPlan, size: Option[BigInt])
 
   /**
-   * Returns the cardinality of a base table access. A base table access represents
-   * a LeafNode, or Project or Filter operators above a LeafNode.
+   * Returns the cardinality of a base table access. A base table access represents 返回基表访问的基数
+   * a LeafNode, or Project or Filter operators above a LeafNode. 基表的访问表示叶子节点、或叶子节点之上的Project或Filter算子
    */
   private def getTableAccessCardinality(
       input: LogicalPlan): Option[BigInt] = input match {
-    case PhysicalOperation(_, cond, t: LeafNode) if t.stats.rowCount.isDefined =>
-      if (conf.cboEnabled && input.stats.rowCount.isDefined) {
-        Option(input.stats.rowCount.get)
+    case PhysicalOperation(_, cond, t: LeafNode) if t.stats.rowCount.isDefined => // 如果是project或filter算子，切定义了rowCount
+      if (conf.cboEnabled && input.stats.rowCount.isDefined) { // 如果开启CBO
+        Option(input.stats.rowCount.get) // 返回逻辑计划统计行数
       } else {
-        Option(t.stats.rowCount.get)
+        Option(t.stats.rowCount.get) // 返回子节点统计行数
       }
     case _ => None
   }
 
   /**
-   * Reorders a star join based on heuristics. It is called from ReorderJoin if CBO is disabled.
+   * Reorders a star join based on heuristics. It is called from ReorderJoin if CBO is disabled. //CBO禁用时，被ReourderJoin调用
    *   1) Finds the star join with the largest fact table.
    *   2) Places the fact table the driving arm of the left-deep tree.
    *     This plan avoids large table access on the inner, and thus favor hash joins.

@@ -51,11 +51,11 @@ trait OperationHelper {
 }
 
 /**
- * A pattern that matches any number of project or filter operations on top of another relational
- * operator.  All filter operators are collected and their conditions are broken up and returned
+ * A pattern that matches any number of project or filter operations on top of another relational 在其它关系算子上匹配任意数量project或filter算子的pattern
+ * operator.  All filter operators are collected and their conditions are broken up and returned  所有的filter算子被收集，filter条件分解并与顶层的project算子一起返回
  * together with the top project operator.
  * [[org.apache.spark.sql.catalyst.expressions.Alias Aliases]] are in-lined/substituted if
- * necessary.
+ * necessary.  必要时，Aliases将被替换或者内嵌
  */
 object PhysicalOperation extends OperationHelper with PredicateHelper {
 
@@ -66,7 +66,7 @@ object PhysicalOperation extends OperationHelper with PredicateHelper {
 
   /**
    * Collects all deterministic projects and filters, in-lining/substituting aliases if necessary.
-   * Here are two examples for alias in-lining/substitution.
+   * Here are two examples for alias in-lining/substitution. 收集所有确定的project和filter,必要时内嵌或替换别名
    * Before:
    * {{{
    *   SELECT c1 FROM (SELECT key AS c1 FROM t1) t2 WHERE c1 > 10

@@ -35,7 +35,7 @@ case class JoinEstimation(join: Join) extends Logging {
 
   /**
    * Estimate statistics after join. Return `None` if the join type is not supported, or we don't
-   * have enough statistics for estimation.
+   * have enough statistics for estimation.  表连接后估计统计信息。 如果join类型不支持，则返回None，或者没有足够统计信息估计
    */
   def estimate: Option[Statistics] = {
     join.joinType match {

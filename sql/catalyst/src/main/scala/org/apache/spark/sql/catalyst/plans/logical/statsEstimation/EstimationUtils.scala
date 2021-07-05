@@ -26,11 +26,11 @@ import org.apache.spark.sql.types.{DecimalType, _}
 
 object EstimationUtils {
 
-  /** Check if each plan has rowCount in its statistics. */
+  /** Check if each plan has rowCount in its statistics. 检查每个plan是否都在statistics中有rowCount*/
   def rowCountsExist(plans: LogicalPlan*): Boolean =
     plans.forall(_.stats.rowCount.isDefined)
 
-  /** Check if each attribute has column stat in the corresponding statistics. */
+  /** Check if each attribute has column stat in the corresponding statistics. 检查每个属性是否都在对应的statistics中有 column统计信息*/
   def columnStatsExist(statsAndAttr: (Statistics, Attribute)*): Boolean = {
     statsAndAttr.forall { case (stats, attr) =>
       stats.attributeStats.contains(attr)
@@ -38,14 +38,14 @@ object EstimationUtils {
   }
 
   /** Check if each attribute has column stat containing distinct and null counts
-   *  in the corresponding statistic. */
+   *  in the corresponding statistic. 检查每个属性在对应的statistics中中的列统计信息是否包含distinct count和null counts*/
   def columnStatsWithCountsExist(statsAndAttr: (Statistics, Attribute)*): Boolean = {
     statsAndAttr.forall { case (stats, attr) =>
       stats.attributeStats.get(attr).map(_.hasCountStats).getOrElse(false)
     }
   }
 
-  /** Statistics for a Column containing only NULLs. */
+  /** Statistics for a Column containing only NULLs. 构造只包含NULL的列统计对象*/
   def nullColumnStat(dataType: DataType, rowCount: BigInt): ColumnStat = {
     ColumnStat(distinctCount = Some(0), min = None, max = None, nullCount = Some(rowCount),
       avgLen = Some(dataType.defaultSize), maxLen = Some(dataType.defaultSize))
@@ -53,11 +53,11 @@ object EstimationUtils {
 
   /**
    * Updates (scales down) the number of distinct values if the number of rows decreases after
-   * some operation (such as filter, join). Otherwise keep it unchanged.
+   * some operation (such as filter, join). Otherwise keep it unchanged. 如果在一些操作后(如filter和join)后，行数减少，则更新（缩小）不同值的数目。 否则保持不变
    */
   def updateNdv(oldNumRows: BigInt, newNumRows: BigInt, oldNdv: BigInt): BigInt = {
     if (newNumRows < oldNumRows) {
-      ceil(BigDecimal(oldNdv) * BigDecimal(newNumRows) / BigDecimal(oldNumRows))
+      ceil(BigDecimal(oldNdv) * BigDecimal(newNumRows) / BigDecimal(oldNumRows)) // 按 oldNdv/oldNumRows 的比例缩小
     } else {
       oldNdv
     }
@@ -65,7 +65,7 @@ object EstimationUtils {
 
   def ceil(bigDecimal: BigDecimal): BigInt = bigDecimal.setScale(0, RoundingMode.CEILING).toBigInt
 
-  /** Get column stats for output attributes. */
+  /** Get column stats for output attributes. 为输出属性获取列统计信息 */
   def getOutputMap(inputMap: AttributeMap[ColumnStat], output: Seq[Attribute])
     : AttributeMap[ColumnStat] = {
     AttributeMap(output.flatMap(a => inputMap.get(a).map(a -> _)))
@@ -349,12 +349,12 @@ object EstimationUtils {
 
   /**
    * Given an original bin and a value range [lowerBound, upperBound], returns the trimmed part
-   * of the bin in that range and its number of rows.
-   * @param bin the input histogram bin.
-   * @param height the number of rows of the given histogram bin inside an equi-height histogram.
-   * @param lowerBound lower bound of the given range.
-   * @param upperBound upper bound of the given range.
-   * @return trimmed part of the given bin and its number of rows.
+   * of the bin in that range and its number of rows. 给的原始直方图块的范围[lowerBound, upperBound],返回该范围内bin的裁剪部分和行数
+   * @param bin the input histogram bin.  直方图的块
+   * @param height the number of rows of the given histogram bin inside an equi-height histogram. 等高直方图中给定直方图单元的行数
+   * @param lowerBound lower bound of the given range.  给定范围的下限
+   * @param upperBound upper bound of the given range.  给定范围的上限
+   * @return trimmed part of the given bin and its number of rows.  给定直方图裁剪块部分和对应行数
    */
   def trimBin(bin: HistogramBin, height: Double, lowerBound: Double, upperBound: Double)
   : (HistogramBin, Double) = {

@@ -34,19 +34,19 @@ case class FilterEstimation(plan: Filter) extends Logging {
   private val colStatsMap = ColumnStatsMap(childStats.attributeStats)
 
   /**
-   * Returns an option of Statistics for a Filter logical plan node.
-   * For a given compound expression condition, this method computes filter selectivity
-   * (or the percentage of rows meeting the filter condition), which
+   * Returns an option of Statistics for a Filter logical plan node. 返回Filter逻辑计划接的的统计信息
+   * For a given compound expression condition, this method computes filter selectivity   对给定的复合表达式条件，
+   * (or the percentage of rows meeting the filter condition), which   该方法计算过滤器selectivity（或满足过滤条件行的百分比）
    * is used to compute row count, size in bytes, and the updated statistics after a given
-   * predicated is applied.
+   * predicated is applied. 这个selectivity用于计算行数、字节数、给定谓词执行后的更新统计
    *
    * @return Option[Statistics] When there is no statistics collected, it returns None.
    */
   def estimate: Option[Statistics] = {
     if (childStats.rowCount.isEmpty) return None
 
-    // Estimate selectivity of this filter predicate, and update column stats if needed.
-    // For not-supported condition, set filter selectivity to a conservative estimate 100%
+    // Estimate selectivity of this filter predicate, and update column stats if needed. 估计筛选器谓词的selectivity,在必要时更新列统计
+    // For not-supported condition, set filter selectivity to a conservative estimate 100% 不支持的条件，设置为保守估计值100%
     val filterSelectivity = calculateFilterSelectivity(plan.condition).getOrElse(1.0)
 
     val filteredRowCount: BigInt = ceil(BigDecimal(childStats.rowCount.get) * filterSelectivity)
@@ -203,7 +203,7 @@ case class FilterEstimation(plan: Filter) extends Logging {
         evaluateBinaryForTwoColumns(op, attrLeft, attrRight, update)
 
       case _ =>
-        // TODO: it's difficult to support string operators without advanced statistics.
+        // TODO: it's difficult to support string operators without advanced statistics. 难以支持字符串操作统计
         // Hence, these string operators Like(_, _) | Contains(_, _) | StartsWith(_, _)
         // | EndsWith(_, _) are not supported yet
         logDebug("[CBO] Unsupported filter condition: " + condition)
